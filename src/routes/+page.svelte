@@ -87,6 +87,7 @@
         <div class="flex flex-col h-full pt-16 pb-4 box-border overflow-hidden">
             <header class="flex flex-col items-center justify-center">
                 <h1 class="flex-1 text-center text-xl">Key-Provided GPT Basic Chatbot</h1>
+                <p class="text-gray-500 mt-2 text-center text-sm px-4">Interact with the GPT model using your own API key. Simply type your message and receive responses from GPT.</p>
             </header>
 
             <div class="flex-1 overflow-y-auto px-4 py-2 space-y-2" bind:this={div}>
