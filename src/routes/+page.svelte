@@ -46,12 +46,11 @@
         comments = [...comments, comment];
         errorMessage = '';
 
-        await pause(200 * (1 + Math.random()));
         comments = [...comments, typing];
 
         const reply = await getGPTResponse(comment.text);
 
-        comments = [...comments.filter(comment => comment !== typing)];
+        comments = comments.filter(comment => comment !== typing);
 
         if (reply.error) {
             errorMessage = reply.error;
@@ -82,15 +81,18 @@
     }
 </script>
 
-<div class="grid place-items-center h-screen">
-    <div class="flex flex-col w-full h-full max-w-md md:max-w-lg bg-white border border-gray-900 rounded-xl shadow-lg overflow-hidden">
+<div class="grid place-items-center h-screen bg-gray-100">
+    <div class="flex flex-col w-full h-full max-w-md md:max-w-lg border border-gray-900 rounded-xl shadow-lg overflow-hidden">
         <div class="flex flex-col h-full pt-16 pb-4 box-border overflow-hidden">
-            <header class="flex flex-col items-center justify-center">
+            <header class="flex flex-col items-center justify-center bg-white pt-4 pb-8">
                 <h1 class="flex-1 text-center text-xl">Key-Provided GPT Basic Chatbot</h1>
                 <p class="text-gray-500 mt-2 text-center text-sm px-4">Interact with the GPT model using your own API key. Simply type your message and receive responses from GPT.</p>
             </header>
 
-            <div class="flex-1 overflow-y-auto px-4 py-2 space-y-2" bind:this={div}>
+            <!-- Header Divider -->
+            <div class="border-t border-gray-300 mx-4"></div>
+
+            <div class="flex-1 overflow-y-auto px-4 py-2 space-y-2 bg-white" bind:this={div}>
                 {#if errorMessage}
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                         <strong class="font-bold">Error:</strong>
@@ -103,14 +105,17 @@
                     </article>
                 {/each}
             </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-300 my-2 mx-4"></div>
         </div>
 
-        <div class="px-4 py-2">
+        <div class="px-4 py-2 bg-gray-100">
             <label for="api-key" class="block text-sm font-medium text-gray-700">OpenAI API Key</label>
             <input id="api-key" type="password" bind:value={apiKey} class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 w-full" placeholder="Enter your API key" />
         </div>
 
-        <div class="flex items-center mt-2 mb-4 mx-4">
+        <div class="flex items-center mt-2 mb-4 mx-4 bg-gray-100">
             <input
                 class="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
                 bind:value={message}
