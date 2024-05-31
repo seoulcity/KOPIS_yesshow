@@ -52,7 +52,7 @@
                 headers: { 
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ userInput, apiKey, selectedModel }),
+                body: JSON.stringify({ userInput, apiKey, selectedModel }),  // selectedModel 추가
             });
             const data = await response.json();
             if (response.ok) {
