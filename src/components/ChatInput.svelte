@@ -1,8 +1,67 @@
 <!-- src/components/ChatInput.svelte -->
 <script>
-    export let message;
-    export let handleKeydown;
-    export let sendMessage;
+    export let apiKey;
+    export let addComment;
+    export let removeTypingIndicator;
+    export let setError;
+    export let typing;
+
+    let message = '';
+
+    async function handleKeydown(event) {
+        if (event.key === 'Enter' && message) {
+            await sendMessage();
+        }
+    }
+
+    async function sendMessage() {
+        if (!apiKey) {
+            alert('Input your API key');
+            return;
+        }
+
+        const comment = {
+            author: 'user',
+            text: message
+        };
+
+        message = '';
+        addComment(comment);
+        setError('');
+
+        addComment(typing);
+
+        const reply = await getGPTResponse(comment.text);
+
+        removeTypingIndicator();
+
+        if (reply.error) {
+            setError(reply.error);
+        } else {
+            addComment(reply);
+        }
+    }
+
+    async function getGPTResponse(userInput) {
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userInput, apiKey }),
+            });
+            const data = await response.json();
+            if (response.ok) {
+                return { author: 'gpt', text: data.text };
+            } else {
+                throw new Error(data.error);
+            }
+        } catch (error) {
+            console.error('Error getting GPT response:', error);
+            return { error: error.message };
+        }
+    }
 </script>
 
 <div class="flex items-center mt-2 mb-4 mx-4 bg-gray-100">

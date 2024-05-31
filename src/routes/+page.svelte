@@ -1,6 +1,5 @@
 <!-- src/routes/+page.svelte -->
 <script>
-    import { beforeUpdate, afterUpdate } from 'svelte';
     import Chatbox from '../components/Chatbox.svelte';
     import ChatInput from '../components/ChatInput.svelte';
     import Header from '../components/Header.svelte';
@@ -8,62 +7,18 @@
     let comments = [];
     const typing = { author: 'gpt', text: '...' };
     let apiKey = '';
-    let message = '';
     let errorMessage = '';
 
-    async function handleKeydown(event) {
-        if (event.key === 'Enter' && message) {
-            await sendMessage();
-        }
-    }
-
-    async function sendMessage() {
-        if (!apiKey) {
-            alert('Input your API key');
-            return;
-        }
-
-        const comment = {
-            author: 'user',
-            text: message
-        };
-
-        message = '';
+    function addComment(comment) {
         comments = [...comments, comment];
-        errorMessage = '';
-
-        comments = [...comments, typing];
-
-        const reply = await getGPTResponse(comment.text);
-
-        comments = comments.filter(comment => comment !== typing);
-
-        if (reply.error) {
-            errorMessage = reply.error;
-        } else {
-            comments = [...comments, reply];
-        }
     }
 
-    async function getGPTResponse(userInput) {
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userInput, apiKey }),
-            });
-            const data = await response.json();
-            if (response.ok) {
-                return { author: 'gpt', text: data.text };
-            } else {
-                throw new Error(data.error);
-            }
-        } catch (error) {
-            console.error('Error getting GPT response:', error);
-            return { error: error.message };
-        }
+    function removeTypingIndicator() {
+        comments = comments.filter(comment => comment !== typing);
+    }
+
+    function setError(message) {
+        errorMessage = message;
     }
 </script>
 
@@ -86,6 +41,6 @@
             <input id="api-key" type="password" bind:value={apiKey} class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 w-full" placeholder="Enter your API key" />
         </div>
 
-        <ChatInput bind:message {handleKeydown} {sendMessage} />
+        <ChatInput {apiKey} {addComment} {removeTypingIndicator} {setError} {typing} />
     </div>
 </div>
