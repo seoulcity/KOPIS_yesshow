@@ -15,11 +15,12 @@ export function createOpenAIClient(apiKey) {
  * Sends a message to OpenAI and returns the response.
  * @param {OpenAI} client - The OpenAI client instance.
  * @param {string} userInput - The user input to send to OpenAI.
+ * @param {string} model - The model to use for the completion.
  * @returns {Promise<string>} - The response from OpenAI.
  */
-export async function getGPTResponse(client, userInput) {
+export async function getGPTResponse(client, userInput, model = 'gpt-3.5-turbo') {
     const response = await client.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model,
         messages: [{ role: 'user', content: userInput }],
     });
 

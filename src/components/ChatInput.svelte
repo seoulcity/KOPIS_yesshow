@@ -5,6 +5,7 @@
     export let removeTypingIndicator;
     export let setError;
     export let typing;
+    export let selectedModel;
 
     let message = '';
 
@@ -29,7 +30,8 @@
         addComment(comment);
         setError('');
 
-        addComment(typing);
+        const typingComment = { ...typing, text: '...', model: selectedModel };
+        addComment(typingComment);
 
         const reply = await getGPTResponse(comment.text);
 
@@ -38,6 +40,7 @@
         if (reply.error) {
             setError(reply.error);
         } else {
+            reply.model = selectedModel;
             addComment(reply);
         }
     }
@@ -49,7 +52,7 @@
                 headers: { 
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ userInput, apiKey }),
+                body: JSON.stringify({ userInput, apiKey, selectedModel }),
             });
             const data = await response.json();
             if (response.ok) {
