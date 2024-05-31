@@ -1,5 +1,7 @@
 // src/routes/api/chat/+server.js
-import OpenAI from 'openai';
+
+import { createOpenAIClient, getGPTResponse } from './openaiClient';
+import { handleError } from './errorHandler';
 
 export async function POST({ request }) {
     try {
@@ -10,29 +12,14 @@ export async function POST({ request }) {
             return new Response(JSON.stringify({ error: 'API key is required' }), { status: 400 });
         }
 
-        const openai = new OpenAI({ apiKey });
+        const openai = createOpenAIClient(apiKey);
+        const reply = await getGPTResponse(openai, userInput);
 
-        const response = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: userInput }],
-        });
+        console.log('OpenAI response:', reply);
 
-        console.log('OpenAI response:', response);
-
-        const reply = response.choices[0].message.content.trim();
         return new Response(JSON.stringify({ text: reply }), { status: 200 });
     } catch (error) {
-        console.error('Error in POST /api/chat:', error);
-        let errorMessage = 'Error getting GPT response';
-
-        let status = 500;
-        if (error.response && error.response.status) {
-            status = error.response.status;
-            errorMessage = `Status: ${status}, Message: ${error.response.data.error.message}`;
-        } else {
-            errorMessage = `Error: ${error.message}`;
-        }
-
+        const { status, errorMessage } = handleError(error);
         return new Response(JSON.stringify({ error: errorMessage }), { status });
     }
 }
