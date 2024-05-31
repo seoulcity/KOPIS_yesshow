@@ -14,7 +14,6 @@
 
     function addComment(comment) {
         comments = [...comments, comment];
-        removeTypingIndicator(); // Ensure typing indicator is removed
     }
 
     function removeTypingIndicator() {

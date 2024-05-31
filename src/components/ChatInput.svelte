@@ -35,12 +35,11 @@
 
         const reply = await getGPTResponse(comment.text);
 
-        removeTypingIndicator();
-
         if (reply.error) {
             setError(reply.error);
         } else {
             reply.model = selectedModel;
+            removeTypingIndicator();
             addComment(reply);
         }
     }
