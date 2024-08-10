@@ -1,16 +1,36 @@
 <!-- src/routes/+page.svelte -->
 <script>
+	import { supabase } from '$lib/supabaseClient';
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
     import Chatbox from '../components/Chatbox.svelte';
     import ChatInput from '../components/ChatInput.svelte';
     import Header from '../components/Header.svelte';
     import Divider from '../components/Divider.svelte';
 
+    let user = null;
     let comments = [];
-    const typing = { author: 'gpt', text: '...', model: '' }; // Added model property
+    const typing = { author: 'gpt', text: '...', model: '' };
     let apiKey = '';
     let errorMessage = '';
     let selectedModel = 'gpt-3.5-turbo';
     const models = ['gpt-3.5-turbo', 'gpt-4-turbo', 'gpt-4o'];
+
+    onMount(async () => {
+		const { data: { user: currentUser } } = await supabase.auth.getUser();
+		if (currentUser) {
+			user = currentUser;
+		} else {
+			goto('/login');
+		}
+	});
+
+    const handleLogout = async () => {
+		const { error } = await supabase.auth.signOut();
+		if (!error) {
+			goto('/login');
+		}
+	};
 
     function addComment(comment) {
         comments = [...comments, comment];
@@ -29,9 +49,27 @@
     }
 </script>
 
-<div class="grid place-items-center h-screen bg-gray-100">
-    <div class="flex flex-col w-full h-full max-w-md md:max-w-lg border border-gray-900 rounded-xl shadow-lg overflow-hidden">
-        <div class="flex flex-col h-full pt-16 pb-4 box-border overflow-hidden">
+<nav class="bg-gray-800 p-4">
+	<div class="container mx-auto flex justify-between items-center">
+		<h1 class="text-white text-xl font-bold">YesShow</h1>
+		{#if user}
+			<button on:click={handleLogout} class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+				로그아웃
+			</button>
+		{/if}
+	</div>
+</nav>
+
+<div class="flex h-screen bg-gray-100">
+    <!-- 왼쪽: 새로운 컨텐츠 영역 -->
+    <div class="w-1/2 p-4 overflow-auto">
+        <h2 class="text-2xl font-bold mb-4">환영합니다, {user?.email}!</h2>
+        <!-- 여기에 새로운 컨텐츠 컴포넌트를 추가하세요 -->
+    </div>
+
+    <!-- 오른쪽: 채팅 영역 -->
+    <div class="w-1/2 flex flex-col border-l border-gray-300">
+        <div class="flex flex-col h-full overflow-hidden">
             <Header />
             <Divider />
             <Chatbox {comments} {errorMessage} />
