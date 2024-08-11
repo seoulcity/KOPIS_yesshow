@@ -180,6 +180,53 @@ export async function deletePerformance(id) {
     if (error) throw error;
 }
 
+export async function uploadHistoricalData(performanceId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('performanceId', performanceId);
+  
+    const response = await fetch('/api/upload-historical-data', {
+      method: 'POST',
+      body: formData
+    });
+  
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Upload failed');
+    }
+  
+    return response.json();
+}
+
+  export async function getHistoricalData(performanceId) {
+    const { data, error } = await supabase
+      .from('historical_data')
+      .select('*')
+      .eq('performance_id', performanceId)
+      .order('created_at', { ascending: false });
+  
+    if (error) throw error;
+    return data;
+  }
+  
+  export async function getHistoricalDataContent(fileUrl) {
+    const filename = fileUrl.split('/').pop();
+    const response = await fetch(`/api/historical-data/${filename}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch historical data');
+    }
+    return response.json();
+}
+
+export async function deleteHistoricalData(id) {
+    const { error } = await supabase
+      .from('historical_data')
+      .delete()
+      .eq('id', id);
+  
+    if (error) throw error;
+  }
+
 // Prediction data related functions
 export async function uploadPredictionData(predictionData) {
     const { data, error } = await supabase

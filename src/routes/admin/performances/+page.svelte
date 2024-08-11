@@ -35,6 +35,10 @@
 	function editPerformance(id) {
 		goto(`/admin/performances/${id}/edit`);
 	}
+
+	function goToHistoricalDataPage(id) {
+		goto(`/admin/performances/${id}/historical-data`);
+	}
 </script>
 
 <h1 class="text-2xl font-bold mb-4">공연 관리</h1>
@@ -65,24 +69,32 @@
 				{:else}
 					<div class="w-24 h-24 bg-gray-200 mr-4 flex items-center justify-center">No image</div>
 				{/if}
-				<div>
+				<div class="flex-grow">
 					<h2 class="text-xl font-bold">{performance.name}</h2>
 					<p>공연장: {performance.venues.name}</p>
 					<p>장르: {performance.genre}</p>
 					<p>좌석 수: {performance.seat_count}</p>
 					<p>가격: {performance.min_price} - {performance.max_price}</p>
-					<button
-						on:click={() => editPerformance(performance.id)}
-						class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 mr-2"
-					>
-						수정
-					</button>
-					<button
-						on:click={() => handleDelete(performance.id)}
-						class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-					>
-						삭제
-					</button>
+					<div class="mt-2">
+						<button
+							on:click={() => editPerformance(performance.id)}
+							class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 mr-2"
+						>
+							수정
+						</button>
+						<button
+							on:click={() => handleDelete(performance.id)}
+							class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700 mr-2"
+						>
+							삭제
+						</button>
+						<button
+							on:click={() => goToHistoricalDataPage(performance.id)}
+							class="bg-purple-500 text-white px-2 py-1 rounded hover:bg-purple-700"
+						>
+							기 공연 데이터 관리
+						</button>
+					</div>
 				</div>
 			</div>
 		{/each}
