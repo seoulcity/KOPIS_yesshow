@@ -73,15 +73,39 @@ export async function deleteVenue(venueId) {
 }
 
 // Performance related functions
-export async function createPerformance(performanceData) {
+export async function uploadThumbnail(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Upload failed');
+    }
+
+    const data = await response.json();
+    return data.url;
+}
+
+export async function createPerformance(performanceData, thumbnailFile) {
+    let thumbnail_url = null;
+    if (thumbnailFile) {
+        thumbnail_url = await uploadThumbnail(thumbnailFile);
+    }
+
     const { data, error } = await supabase
         .from('performances')
-        .insert([performanceData])
+        .insert([{ ...performanceData, thumbnail_url }])
         .select();
 
     if (error) throw error;
     return data[0];
 }
+
 
 export async function getUserPerformances() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -100,6 +124,27 @@ export async function getUserPerformances() {
     return data;
 }
 
+export async function getPerformances() {
+    const { data, error } = await supabase
+        .from('performances')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+}
+
+export async function getPerformance(id) {
+    const { data, error } = await supabase
+        .from('performances')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
 export async function getPerformancesByVenueId(venueId) {
     const { data, error } = await supabase
         .from('performances')
@@ -110,10 +155,15 @@ export async function getPerformancesByVenueId(venueId) {
     return data;
 }
 
-export async function updatePerformance(id, performanceData) {
+export async function updatePerformance(id, performanceData, thumbnailFile) {
+    let thumbnail_url = performanceData.thumbnail_url;
+    if (thumbnailFile) {
+        thumbnail_url = await uploadThumbnail(thumbnailFile);
+    }
+
     const { data, error } = await supabase
         .from('performances')
-        .update(performanceData)
+        .update({ ...performanceData, thumbnail_url })
         .eq('id', id)
         .select();
 
